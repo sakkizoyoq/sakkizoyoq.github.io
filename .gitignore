@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# Data output (raw scraped dumps — not committed)
+data/*.json
+!data/.gitkeep
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# Secrets
+.env
