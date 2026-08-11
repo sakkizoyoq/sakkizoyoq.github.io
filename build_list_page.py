@@ -10,35 +10,9 @@
 from __future__ import annotations
 
 import collections
-import html
 import json
-import re
 
-# Категории — по названию товара, а не по рубрикам магазинов: у каждого магазина
-# они свои («Хиты недели», «Топ-10 товаров»), человеку от них толку мало.
-RULES = [
-    ("Детское", r"детск|baby|pampers|huggies|nutrilak|растишка|агуша|подгузн|соск|"
-                r"пюре|молочная смесь|фрутоняня|кашк|мамако|malysh|малыш"),
-    ("Напитки", r"напиток|вода|сок|кола|cola|pepsi|sprite|fanta|квас|лимонад|морс|"
-                r"energ|энерг|borjomi|chortoq|газиров|нектар"),
-    ("Чай и кофе", r"\bчай\b|\bкофе\b|tess|greenfield|lipton|nescafe|jacobs|какао"),
-    ("Молочное", r"молок|кефир|йогурт|сметан|творог|сыр\b|сливк|масло сливочн|ряженк|"
-                 r"айран|простокваш"),
-    ("Сладости", r"шоколад|конфет|печень|вафл|мармелад|зефир|пряник|торт|батончик|"
-                 r"леденц|карамел|халва|круассан|kinder|nutella"),
-    ("Снеки", r"чипс|сухар|орех|семечк|попкорн|снек|кириешк|фисташ|арахис"),
-    ("Бакалея", r"мука|крупа|рис\b|гречк|макарон|спагетт|паста\b|сахар|соль|"
-                r"масло подсолн|масло оливк|уксус|соус|кетчуп|майонез|специ|приправ|"
-                r"консерв|тушен|горошек|кукуруз"),
-    ("Гигиена и уход", r"шампун|гель для душа|мыло|зубн|прокладк|kotex|always|дезодор|"
-                       r"крем\b|бальзам|лосьон|бритв|станок|ватн|салфетк влажн|nivea|"
-                       r"dove|schauma|elseve|johnson"),
-    ("Бытовая химия", r"порошок|кондиционер для бель|отбелив|чистящ|моющ|средство для|"
-                      r"освежител|туалетн|мешк для мусор|губк|перчатк|fairy|tide|ariel|"
-                      r"domestos|доместос|пемолюкс"),
-    ("Дом и канцелярия", r"тетрад|альбом|ручк|карандаш|линейк|пенал|рюкзак|клей|ножниц|"
-                         r"фломастер|краск|точилк|дневник|обложк"),
-]
+from categories import ORDER, OTHER, classify
 
 STORE_COLOR = {
     "Korzinka": "#e11d48",
@@ -51,16 +25,8 @@ SOURCES = [
     ("Korzinka", "korzinka_sample.json", "только товары по акции"),
     ("Makro", "makro_sample.json", "только товары по акции"),
     ("Makro (Яндекс)", "yandex_sample.json", "весь каталог доставки"),
-    ("Uzum Market", "uzum_sample.json", "выборка из «Продуктов питания»"),
+    ("Uzum Market", "uzum_sample.json", "27 категорий: еда, химия, гигиена"),
 ]
-
-
-def classify(name: str) -> str:
-    low = (name or "").lower()
-    for label, pattern in RULES:
-        if re.search(pattern, low):
-            return label
-    return "Разное"
 
 
 def is_cross_network(card: dict) -> bool:
@@ -83,10 +49,9 @@ def main() -> None:
 
     groups: dict[str, list] = collections.defaultdict(list)
     for card in cards:
-        groups[classify(card["name"])].append(card)
+        groups[card.get("category") or classify(card["name"])].append(card)
 
-    order = [label for label, _ in RULES] + ["Разное"]
-    order = [label for label in order if groups.get(label)]
+    order = [label for label in ORDER if groups.get(label)]
 
     cross = sum(1 for c in cards if is_cross_network(c))
 

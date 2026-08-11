@@ -21,6 +21,7 @@ import re
 import time
 import urllib.request
 
+from categories import classify
 from matching import (THRESHOLD, extract_brands, extract_size, score, unit_price)
 from translit import is_transliterated, skeleton
 from scrapers.common import save_json
@@ -312,8 +313,10 @@ def make_card(items: list[dict], confidence: float) -> dict:
     # Для заголовка карточки берём русское название: латинское «John. baby
     # shampun 200ml» из Яндекс Еды человеку читать неудобно.
     readable = [s for s in items if not is_transliterated(s["title"])] or items
+    name = clean_title(max(readable, key=lambda s: readability(s["title"]))["title"])
     return {
-        "name": clean_title(max(readable, key=lambda s: readability(s["title"]))["title"]),
+        "name": name,
+        "category": classify(name),
         "unit": format_size(size) or next((s.get("unit") for s in items if s.get("unit")), None),
         "size": {"kind": size[0], "value": size[1]} if size else None,
         "brands": sorted(brands),

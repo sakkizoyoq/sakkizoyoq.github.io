@@ -130,6 +130,13 @@
 
   .tap-hint{font-size:13px;color:var(--ink-soft);margin:-6px 0 14px}
 
+  /* Категории */
+  .catgroup{margin-bottom:34px;scroll-margin-top:90px}
+  .cattitle{display:flex;align-items:baseline;gap:10px;margin:0 0 14px;
+    font-size:19px;font-weight:800;letter-spacing:-.02em}
+  .cattitle .catcount{font-size:13px;font-weight:600;color:var(--ink-soft)}
+  .cattitle::after{content:"";flex:1;height:1px;background:var(--line);margin-left:2px}
+
   /* Строка магазина — ссылка на этот товар в его магазине */
   a.row{text-decoration:none;color:inherit;transition:border-color .12s,box-shadow .12s,transform .12s}
   a.row:hover{border-color:var(--ink-soft);box-shadow:0 2px 10px rgba(0,0,0,.07)}
@@ -232,16 +239,8 @@
       <span class="hint" id="cmpcount">один товар — цены в разных магазинах</span>
     </div>
     <p class="tap-hint">Нажмите на строку магазина — откроется этот товар у него на сайте</p>
-    <div class="cmp-grid" id="cmp"></div>
-  </section>
-
-  <section class="sec">
-    <div class="sec-head">
-      <h2>Товары в базе</h2>
-      <span class="hint" id="catcount"></span>
-    </div>
     <div class="filters" id="filters"></div>
-    <div class="grid" id="grid"></div>
+    <div id="cmp"></div>
   </section>
 
   <footer>
@@ -282,25 +281,28 @@ const STORE_ROLE = {
 const CHEVRON = '<svg class="chev" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m9 6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
 function storeStats(){
-  // count how many products each store contributes
-  const catByStore = {};
-  DATA.catalog.forEach(p=>{ catByStore[p.store] = (catByStore[p.store]||0)+1; });
+  // в скольких сравнениях участвует каждый магазин
   const cmpByStore = {};
   DATA.comparisons.forEach(c=>c.stores.forEach(s=>{ cmpByStore[s.store] = (cmpByStore[s.store]||0)+1; }));
-  const names = Array.from(new Set([...Object.keys(catByStore), ...Object.keys(cmpByStore),
-    ...DATA.comparisons.flatMap(c=>c.stores.map(s=>s.store))]));
-  return names.map(n=>({name:n, catalog:catByStore[n]||0, cmp:cmpByStore[n]||0}));
+  return Object.keys(cmpByStore).sort((a,b)=>cmpByStore[b]-cmpByStore[a])
+    .map(n=>({name:n, cmp:cmpByStore[n]}));
+}
+
+function categoryStats(){
+  const counts = {};
+  DATA.comparisons.forEach(c=>{ const k=c.category||'Разное'; counts[k]=(counts[k]||0)+1; });
+  return (DATA.categories||Object.keys(counts)).filter(k=>counts[k]).map(k=>({name:k, n:counts[k]}));
 }
 
 function renderStats(){
   const el = document.getElementById('stats');
   const stores = storeStats();
-  const total = DATA.catalog.length + DATA.comparisons.length;
+  const total = DATA.comparisons.length;
   const items = [
     {key:'stores', b:String(stores.length),
      s:plural(stores.length,'магазин сравниваем','магазина сравниваем','магазинов сравниваем')},
     {key:'products', b:String(total),
-     s:plural(total,'товар в демо','товара в демо','товаров в демо')},
+     s:plural(total,'товар сравниваем','товара сравниваем','товаров сравниваем')},
     {b:'Ташкент', s:'цены для города'},
     {b:fmtDate(DATA.collectedAt) || '—', s:'дата сбора цен'},
   ];
@@ -314,29 +316,23 @@ function renderStats(){
 function detailHTML(key){
   const stores = storeStats();
   if(key==='stores'){
-    const rows = stores.map(s=>{
-      const bits = [];
-      if(s.catalog) bits.push(`${s.catalog} товаров в каталоге`);
-      if(s.cmp) bits.push(`${s.cmp} в сравнениях`);
-      return `<div class="sd-row">
+    const rows = stores.map(s=>`
+      <div class="sd-row">
         <span class="dot" style="background:${storeColor(s.name)}"></span>
         <span><span class="sd-name">${s.name}</span><br><span class="sd-desc">${STORE_ROLE[s.name]||''}</span></span>
-        <span class="sd-count">${bits.join(' · ')}</span>
-      </div>`;
-    }).join('');
+        <span class="sd-count">${s.cmp} ${plural(s.cmp,'сравнение','сравнения','сравнений')}</span>
+      </div>`).join('');
     return `<p class="sd-title">Какие магазины мы сравниваем</p>${rows}
       <p class="sd-note">«(Яндекс)» — это каталог доставки того же магазина в Яндекс&nbsp;Еде. Цена в самом магазине и в доставке часто разная, поэтому показываем обе.</p>`;
   }
-  // products — catalog counts per store
-  const catRows = stores.filter(s=>s.catalog>0).map(s=>`
-    <div class="sd-row"><span class="dot" style="background:${storeColor(s.name)}"></span>
-      <span><span class="sd-name">Каталог ${s.name}</span><br><span class="sd-desc">реальные цены${/uzum/i.test(s.name)?', полный ассортимент':', акции недели'}</span></span>
-      <span class="sd-count">${s.catalog}</span></div>`).join('');
-  return `<p class="sd-title">Что сейчас в базе демо</p>${catRows}
+  // products — по категориям
+  const rows = categoryStats().map(c=>`
     <div class="sd-row"><span class="dot" style="background:var(--save)"></span>
-      <span><span class="sd-name">Сравнения цен</span><br><span class="sd-desc">один товар — цены в 2 магазинах</span></span>
-      <span class="sd-count">${DATA.comparisons.length}</span></div>
-    <p class="sd-note">Сайты Korzinka и Makro показывают только акции недели (~300 товаров у каждого) — полный ассортимент Korzinka возьмём позже из приложения. У доставки Makro и у Uzum забираем каталог целиком, это тысячи товаров.</p>`;
+      <span><span class="sd-name">${c.name}</span></span>
+      <span class="sd-count">${c.n}</span></div>`).join('');
+  const three = DATA.comparisons.filter(c=>c.stores.length>=3).length;
+  return `<p class="sd-title">Что сейчас на витрине</p>${rows}
+    <p class="sd-note">Здесь только товары, у которых нашлась пара для сравнения: ${DATA.comparisons.length} штук, из них ${three} — сразу в трёх и более магазинах. Товары, которые есть лишь в одном магазине, мы не показываем — сравнивать их не с чем.</p>`;
 }
 
 function toggleDetail(btn){
@@ -350,13 +346,7 @@ function toggleDetail(btn){
   panel.hidden = false;
 }
 
-function renderComparisons(list){
-  const el = document.getElementById('cmp');
-  const hint = document.getElementById('cmpcount');
-  if(!list.length){ document.getElementById('cmp-sec').style.display='none'; return; }
-  document.getElementById('cmp-sec').style.display='';
-  if(hint) hint.textContent = `${list.length} ${plural(list.length,'товар нашёлся','товара нашлись','товаров нашлись')} сразу в нескольких магазинах`;
-  el.innerHTML = list.map(c=>{
+function cardHTML(c){
     const stores = c.stores.slice().sort((a,b)=>a.price-b.price);
     const best = stores[0].price, worst = stores[stores.length-1].price;
     const save = worst - best, savePct = worst? Math.round(save*100/worst):0;
@@ -386,61 +376,66 @@ function renderComparisons(list){
       ${c.promo_end?`<div class="promo-end">Акция до ${fmtDate(c.promo_end)}</div>`:''}
       <div class="cmp-rows">${rows}</div>
     </article>`;
-  }).join('');
 }
 
-function renderCatalog(list){
-  const el = document.getElementById('grid');
-  document.getElementById('catcount').textContent = `${list.length} товаров`;
-  if(!list.length){ el.innerHTML = '<div class="empty">Ничего не найдено. Попробуйте другое слово.</div>'; return; }
-  el.innerHTML = list.map(p=>`
-    <a class="card" href="${p.url||'#'}" target="_blank" rel="noopener">
-      <div class="imgwrap">
-        ${p.discount?`<span class="disc">−${p.discount}%</span>`:''}
-        <img src="${p.image}" alt="" loading="lazy">
-      </div>
-      <div class="body">
-        <div class="price-line">
-          <span class="price-now num">${fmt(p.price)}<span class="cur">${CUR}</span></span>
-          ${p.old_price?`<span class="price-old num">${fmt(p.old_price)}</span>`:''}
-        </div>
-        ${p.unit_price?`<span class="unit-price num">${fmt(p.unit_price)} ${p.unit_label}</span>`:''}
-        <div class="title">${p.title}</div>
-        <div class="foot">
-          <span class="store-chip"><span class="dot" style="background:${storeColor(p.store)}"></span>${p.store}</span>
-          ${p.promo_end?`<span class="rating">до ${fmtDate(p.promo_end)}</span>`
-            :(p.rating?`<span class="rating">★ <b>${p.rating}</b></span>`:'')}
-        </div>
-      </div>
-    </a>`).join('');
+function renderComparisons(list){
+  const el = document.getElementById('cmp');
+  const hint = document.getElementById('cmpcount');
+  if(hint) hint.textContent = list.length
+    ? `${list.length} ${plural(list.length,'товар нашёлся','товара нашлись','товаров нашлись')} сразу в нескольких магазинах`
+    : 'ничего не нашлось';
+  if(!list.length){
+    el.innerHTML = '<div class="empty">Ничего не нашлось. Попробуйте другое слово или другую категорию.</div>';
+    return;
+  }
+  // раскладываем по категориям, порядок задан при сборке
+  const buckets = new Map();
+  (DATA.categories||[]).forEach(k=>buckets.set(k, []));
+  list.forEach(c=>{
+    const k = c.category || 'Разное';
+    if(!buckets.has(k)) buckets.set(k, []);
+    buckets.get(k).push(c);
+  });
+  el.innerHTML = [...buckets].filter(([,items])=>items.length).map(([name,items])=>`
+    <div class="catgroup" id="cat-${encodeURIComponent(name)}">
+      <h3 class="cattitle">${name}<span class="catcount num">${items.length}</span></h3>
+      <div class="cmp-grid">${items.map(cardHTML).join('')}</div>
+    </div>`).join('');
 }
 
-let activeStore = 'all';
+let activeCat = 'all';
 
-function renderFilters(){
+function matchesSearch(c, q){
+  if(!q) return true;
+  return (c.name||'').toLowerCase().includes(q)
+      || c.stores.some(s=>(s.title||'').toLowerCase().includes(q));
+}
+
+function renderFilters(q){
   const el = document.getElementById('filters');
-  const stats = storeStats().filter(s=>s.catalog>0);
-  const chips = [{key:'all', label:'Все магазины', count:DATA.catalog.length}]
-    .concat(stats.map(s=>({key:s.name, label:s.name, count:s.catalog})));
+  const found = DATA.comparisons.filter(c=>matchesSearch(c, q));
+  const counts = {};
+  found.forEach(c=>{ const k=c.category||'Разное'; counts[k]=(counts[k]||0)+1; });
+  const chips = [{key:'all', label:'Все', count:found.length}]
+    .concat((DATA.categories||[]).filter(k=>counts[k]).map(k=>({key:k, label:k, count:counts[k]})));
   el.innerHTML = chips.map(c=>`
-    <button type="button" class="chip" data-store="${c.key}" aria-pressed="${c.key===activeStore}">
-      ${c.key!=='all'?`<span class="dot" style="background:${storeColor(c.key)}"></span>`:''}
+    <button type="button" class="chip" data-cat="${c.key}" aria-pressed="${c.key===activeCat}">
       ${c.label}<span class="cnt num">${c.count}</span>
     </button>`).join('');
   el.querySelectorAll('.chip').forEach(b=>b.addEventListener('click',()=>{
-    activeStore = b.dataset.store; renderFilters();
+    activeCat = b.dataset.cat;
     applySearch(document.getElementById('q').value);
   }));
 }
 
 function applySearch(q){
   q = (q||'').trim().toLowerCase();
-  let cat = activeStore==='all' ? DATA.catalog : DATA.catalog.filter(p=>p.store===activeStore);
-  if(q) cat = cat.filter(p=>(p.title||'').toLowerCase().includes(q));
-  const cmp = q? DATA.comparisons.filter(c=>(c.name||'').toLowerCase().includes(q)
-      || c.stores.some(s=>(s.title||'').toLowerCase().includes(q))) : DATA.comparisons;
-  renderComparisons(cmp);
-  renderCatalog(cat);
+  let list = DATA.comparisons.filter(c=>matchesSearch(c, q));
+  // если в выбранной категории после поиска пусто — показываем всё найденное
+  if(activeCat !== 'all' && !list.some(c=>(c.category||'Разное')===activeCat)) activeCat = 'all';
+  renderFilters(q);
+  if(activeCat !== 'all') list = list.filter(c=>(c.category||'Разное')===activeCat);
+  renderComparisons(list);
 }
 
 // theme toggle
@@ -455,6 +450,5 @@ document.getElementById('theme').addEventListener('click',()=>{
 document.getElementById('q').addEventListener('input', e=>applySearch(e.target.value));
 
 renderStats();
-renderFilters();
 applySearch('');
 </script>

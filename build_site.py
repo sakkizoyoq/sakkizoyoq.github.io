@@ -9,18 +9,19 @@
 from __future__ import annotations
 
 import base64
+import collections
 import json
 import os
 import time
 import urllib.request
 
+from categories import ORDER, OTHER
 from matching import unit_price
 
 CACHE_PATH = "data/.image_cache.json"
 MAX_IMAGE_BYTES = 3_000_000   # больше этого не качаем вовсе
 TARGET_BYTES = 20_000         # во что стараемся уложить картинку в странице
 THUMB_SIDE = 240              # карточки маленькие, больше и не нужно
-CATALOG_PER_STORE = 16   # больше не влезает: картинки вшиты в страницу, предел 16 МБ
 
 HEADERS = {
     "User-Agent": ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
@@ -115,56 +116,6 @@ class ImageCache:
         json.dump(self.data, open(self.path, "w", encoding="utf-8"), ensure_ascii=False)
 
 
-def load_catalog(cache: ImageCache) -> list[dict]:
-    """Витринная сетка: понемногу товаров из каждого магазина."""
-    sources = [
-        ("uzum_sample.json", "Uzum Market"),
-        ("korzinka_sample.json", "Korzinka"),
-        ("makro_sample.json", "Makro"),
-        ("yandex_sample.json", None),   # метка магазина лежит в самих товарах
-    ]
-    out: list[dict] = []
-    for filename, store_name in sources:
-        path = f"data/{filename}"
-        if not os.path.exists(path):
-            continue
-        rows = [r for r in json.load(open(path, encoding="utf-8"))
-                if r.get("price") and r.get("image_url")]
-        if store_name is None:
-            # в файле Яндекса несколько магазинов — берём понемногу от каждого
-            picked, seen_counts = [], {}
-            for r in rows:
-                label = r.get("store_label") or "?"
-                if seen_counts.get(label, 0) >= CATALOG_PER_STORE:
-                    continue
-                seen_counts[label] = seen_counts.get(label, 0) + 1
-                picked.append(r)
-            rows = picked
-        else:
-            rows = rows[:CATALOG_PER_STORE]
-        for r in rows:
-            store = store_name or r.get("store_label") or "?"
-            image = cache.get(r["image_url"])
-            if not image:
-                continue
-            item = {
-                "title": r["title_ru"],
-                "price": r["price"],
-                "old_price": r.get("old_price"),
-                "discount": r.get("discount_percent"),
-                "image": image,
-                "rating": r.get("rating"),
-                "url": r.get("product_url"),
-                "store": store,
-                "promo_end": r.get("promo_end"),
-            }
-            up = unit_price(r["price"], r["title_ru"], r.get("unit"))
-            if up:
-                item["unit_price"], item["unit_label"] = up
-            out.append(item)
-    return out
-
-
 def load_comparisons(cache: ImageCache) -> list[dict]:
     path = "data/comparisons.json"
     if not os.path.exists(path):
@@ -208,14 +159,21 @@ def main() -> None:
     print("Готовлю карточки сравнения...")
     comparisons = load_comparisons(cache)
     print(f"  карточек: {len(comparisons)}")
-    print("Готовлю каталог...")
-    catalog = load_catalog(cache)
-    print(f"  товаров: {len(catalog)}")
     cache.save()
     print(f"Картинки: из кэша {cache.hits}, скачано {cache.misses - cache.failed}, "
           f"не удалось {cache.failed}")
 
-    payload = {"comparisons": comparisons, "catalog": catalog,
+    by_category = collections.Counter(c.get("category") or OTHER for c in comparisons)
+    print("По категориям:")
+    for label in ORDER:
+        if by_category[label]:
+            print(f"  {label:<20} {by_category[label]:>4}")
+
+    # На витрине показываем только товары, у которых есть с чем сравнить.
+    # Одиночные товары («каталог магазина») убраны: они не отвечают на вопрос,
+    # ради которого человек сюда пришёл.
+    payload = {"comparisons": comparisons,
+               "categories": [l for l in ORDER if by_category[l]],
                "collectedAt": collected_at()}
     template = open("site/index.template.html", encoding="utf-8").read()
     data_js = json.dumps(payload, ensure_ascii=False).replace("</", "<\\/")
@@ -226,7 +184,7 @@ def main() -> None:
     print(f"\nГотово: site/index.html — {size_mb:.1f} МБ")
     print(f"  сравнений: {len(comparisons)} (по трём магазинам: {three})")
     if size_mb > 15:
-        print("  ВНИМАНИЕ: страница близка к пределу 16 МБ — уменьшите CATALOG_PER_STORE")
+        print("  ВНИМАНИЕ: страница близка к пределу 16 МБ — уменьшите THUMB_SIDE")
 
 
 if __name__ == "__main__":
