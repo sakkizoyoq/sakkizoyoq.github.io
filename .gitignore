@@ -16,3 +16,7 @@ data/*.json
 
 # Secrets
 .env
+
+# Generated pages (large; пересобираются из шаблона и данных)
+site/index.html
+site/spisok.html

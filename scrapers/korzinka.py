@@ -46,7 +46,10 @@ def normalize_product(raw: dict, category_title: str) -> dict:
         "product_type": prices.get("product_type"),
         "cashback": prices.get("cashback_size"),
         "image_url": raw.get("small_image_url"),
-        "product_url": raw.get("product_url"),
+        # У Korzinka нет отдельной страницы товара: их собственный product_url —
+        # это ссылка на установку приложения, одинаковая для всех товаров.
+        # Проверено 11.08.2026, поэтому ведём на страницу акционного каталога.
+        "product_url": "https://korzinka.uz/ru/catalog",
         "currency": "UZS",
         "city": "Tashkent",
         "in_stock": True,

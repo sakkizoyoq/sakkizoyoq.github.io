@@ -1,0 +1,460 @@
+<title>sakkizoyoq — где продукты дешевле в Ташкенте</title>
+<style>
+  :root{
+    --bg:#F4F6F5; --surface:#FFFFFF; --surface-2:#EDF1EF;
+    --ink:#14201F; --ink-soft:#5C6C69; --line:#E2E8E5;
+    --brand:#EE5B3A; --brand-ink:#C2381C;
+    --save:#0E8F66; --save-bg:#E1F4EB; --save-line:#B9E4D1;
+    --saffron:#E79A2B;
+    --shadow:0 1px 2px rgba(20,32,31,.05), 0 8px 24px rgba(20,32,31,.06);
+    --radius:16px;
+    --font:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --maxw:1140px;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0E1615; --surface:#16211F; --surface-2:#1D2A28;
+      --ink:#EAF1EF; --ink-soft:#97A8A4; --line:#26332F;
+      --brand:#FF6A48; --brand-ink:#FF8468;
+      --save:#37C98D; --save-bg:#123329; --save-line:#1E4E3E;
+      --saffron:#EAA945;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0E1615; --surface:#16211F; --surface-2:#1D2A28;
+    --ink:#EAF1EF; --ink-soft:#97A8A4; --line:#26332F;
+    --brand:#FF6A48; --brand-ink:#FF8468;
+    --save:#37C98D; --save-bg:#123329; --save-line:#1E4E3E;
+    --saffron:#EAA945;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+  }
+  :root[data-theme="light"]{
+    --bg:#F4F6F5; --surface:#FFFFFF; --surface-2:#EDF1EF;
+    --ink:#14201F; --ink-soft:#5C6C69; --line:#E2E8E5;
+    --brand:#EE5B3A; --brand-ink:#C2381C;
+    --save:#0E8F66; --save-bg:#E1F4EB; --save-line:#B9E4D1;
+    --saffron:#E79A2B;
+    --shadow:0 1px 2px rgba(20,32,31,.05), 0 8px 24px rgba(20,32,31,.06);
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);
+    -webkit-font-smoothing:antialiased;line-height:1.5;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 20px}
+  a{color:inherit;text-decoration:none}
+  .num{font-variant-numeric:tabular-nums}
+
+  /* Header */
+  header.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 86%,transparent);
+    backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--line)}
+  .topbar{display:flex;align-items:center;gap:18px;padding:12px 20px;max-width:var(--maxw);margin:0 auto}
+  .brand{display:flex;align-items:center;gap:10px;flex-shrink:0}
+  .brand .mark{width:34px;height:34px;color:var(--brand);flex-shrink:0}
+  .brand .name{font-weight:800;font-size:20px;letter-spacing:-.03em}
+  .brand .tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+    color:var(--ink-soft);border:1px solid var(--line);border-radius:6px;padding:2px 6px;margin-top:2px}
+  .search{flex:1;display:flex;align-items:center;gap:10px;background:var(--surface);
+    border:1px solid var(--line);border-radius:12px;padding:10px 14px;box-shadow:var(--shadow)}
+  .search svg{width:18px;height:18px;color:var(--ink-soft);flex-shrink:0}
+  .search input{border:0;outline:0;background:transparent;color:var(--ink);font-size:15px;width:100%;font-family:inherit}
+  .city{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--ink-soft);
+    white-space:nowrap;flex-shrink:0}
+  .city svg{width:16px;height:16px;color:var(--brand)}
+  .themebtn{flex-shrink:0;width:38px;height:38px;border-radius:10px;border:1px solid var(--line);
+    background:var(--surface);color:var(--ink);cursor:pointer;display:grid;place-items:center}
+  .themebtn svg{width:18px;height:18px}
+  .themebtn:focus-visible,.search input:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+
+  /* Hero */
+  .hero{padding:40px 0 14px}
+  .hero h1{font-size:clamp(28px,4.4vw,46px);line-height:1.05;letter-spacing:-.035em;margin:0 0 12px;
+    font-weight:800;text-wrap:balance;max-width:16ch}
+  .hero h1 em{font-style:normal;color:var(--brand)}
+  .hero p.lede{font-size:clamp(15px,1.8vw,18px);color:var(--ink-soft);max-width:52ch;margin:0}
+  .stats{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+  .stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px;display:flex;
+    flex-direction:column;box-shadow:var(--shadow)}
+  .stat b{font-size:19px;font-weight:800;letter-spacing:-.02em}
+  .stat span{font-size:12px;color:var(--ink-soft);font-weight:600}
+  button.stat{cursor:pointer;text-align:left;font-family:inherit;color:inherit;position:relative;padding-right:34px}
+  button.stat:hover{border-color:var(--brand)}
+  button.stat .chev{position:absolute;right:12px;top:50%;margin-top:-8px;width:16px;height:16px;color:var(--ink-soft);transition:transform .2s ease}
+  button.stat[aria-expanded="true"]{border-color:var(--brand)}
+  button.stat[aria-expanded="true"] .chev{transform:rotate(90deg);color:var(--brand)}
+  button.stat:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+  .stat-detail{margin-top:12px;background:var(--surface);border:1px solid var(--line);border-radius:14px;
+    box-shadow:var(--shadow);padding:16px 18px;max-width:560px}
+  .sd-title{font-weight:800;font-size:15px;margin:0 0 6px}
+  .sd-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
+  .sd-row .dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+  .sd-row .sd-name{font-weight:700;font-size:14px}
+  .sd-row .sd-desc{font-size:12.5px;color:var(--ink-soft)}
+  .sd-row .sd-count{margin-left:auto;font-weight:700;font-size:13px;white-space:nowrap;text-align:right}
+  .sd-note{margin:12px 0 0;font-size:12.5px;color:var(--ink-soft);line-height:1.45}
+
+  /* Section heading */
+  .sec{padding:30px 0 6px}
+  .sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:16px}
+  .sec-head h2{font-size:22px;letter-spacing:-.02em;margin:0;font-weight:800}
+  .sec-head .hint{font-size:13px;color:var(--ink-soft)}
+
+  /* Comparison cards */
+  .cmp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+  .cmp{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column}
+  .cmp-top{display:flex;gap:14px;padding:16px 16px 8px}
+  .cmp-top img{width:76px;height:76px;object-fit:contain;background:#fff;border-radius:12px;
+    border:1px solid var(--line);flex-shrink:0;padding:6px}
+  .cmp-top .meta{min-width:0}
+  .cmp-top .pname{font-weight:700;font-size:15px;line-height:1.25;margin:0 0 3px}
+  .cmp-top .punit{font-size:12.5px;color:var(--ink-soft)}
+  .cmp-save{margin:6px 16px 0;font-size:12.5px;font-weight:700;color:var(--save);
+    background:var(--save-bg);border:1px solid var(--save-line);border-radius:8px;padding:5px 9px;display:inline-block}
+  .cmp-tag{position:absolute;top:12px;right:12px;font-size:10.5px;font-weight:800;letter-spacing:.04em;
+    text-transform:uppercase;color:var(--brand);background:var(--surface-2);border:1px solid var(--line);
+    border-radius:999px;padding:3px 9px}
+  .cmp{position:relative}
+  .promo-end{margin:8px 16px 0;font-size:11.5px;font-weight:700;color:var(--saffron)}
+  .cmp-rows{padding:12px 16px 16px;display:flex;flex-direction:column;gap:7px}
+  .row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;
+    border-radius:11px;border:1px solid var(--line);background:var(--surface)}
+  .row.best{border-color:var(--save-line);background:var(--save-bg)}
+  .row .store{display:flex;align-items:center;gap:8px;font-weight:600;font-size:14px}
+  .row .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+  .row .price{font-weight:800;font-size:16px;letter-spacing:-.01em}
+  .row .price .cur{font-size:11px;font-weight:600;color:var(--ink-soft);margin-left:3px}
+  .row .badge{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#fff;
+    background:var(--save);border-radius:5px;padding:2px 6px;margin-left:8px}
+  .row.best .price{color:var(--save)}
+
+  .tap-hint{font-size:13px;color:var(--ink-soft);margin:-6px 0 14px}
+
+  /* Строка магазина — ссылка на этот товар в его магазине */
+  a.row{text-decoration:none;color:inherit;transition:border-color .12s,box-shadow .12s,transform .12s}
+  a.row:hover{border-color:var(--ink-soft);box-shadow:0 2px 10px rgba(0,0,0,.07)}
+  a.row:active{transform:scale(.995)}
+  a.row:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  .row .go{margin-left:10px;flex-shrink:0;width:22px;height:22px;border-radius:50%;
+    display:inline-flex;align-items:center;justify-content:center;font-size:12px;line-height:1;
+    color:var(--ink-soft);background:var(--line);transition:transform .12s,background .12s,color .12s}
+  a.row:hover .go{transform:translateX(2px);background:var(--ink);color:var(--bg)}
+  .row .right{display:flex;align-items:center}
+  .row .prices{text-align:right}
+  @media (prefers-reduced-motion:reduce){a.row,.row .go{transition:none}a.row:active{transform:none}}
+
+  /* Store filter chips */
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+  .chip{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;
+    padding:8px 15px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;
+    display:flex;align-items:center;gap:8px;transition:background .12s,color .12s}
+  .chip .dot{width:9px;height:9px;border-radius:50%}
+  .chip .cnt{color:var(--ink-soft);font-weight:600}
+  .chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+  .chip[aria-pressed="true"] .cnt{color:var(--bg);opacity:.7}
+  .chip:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+
+  /* Catalog grid */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;transition:transform .15s ease,box-shadow .15s ease}
+  .card:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(20,32,31,.12)}
+  .card .imgwrap{position:relative;aspect-ratio:1;background:#fff;display:grid;place-items:center;padding:14px}
+  .card .imgwrap img{max-width:100%;max-height:100%;object-fit:contain}
+  .disc{position:absolute;top:10px;left:10px;background:var(--brand);color:#fff;font-weight:800;
+    font-size:12px;border-radius:8px;padding:3px 7px;letter-spacing:-.01em}
+  .card .body{padding:11px 13px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
+  .price-line{display:flex;align-items:baseline;gap:8px}
+  .price-now{font-size:18px;font-weight:800;letter-spacing:-.02em}
+  .price-now .cur{font-size:11px;font-weight:600;color:var(--ink-soft);margin-left:2px}
+  .price-old{font-size:13px;color:var(--ink-soft);text-decoration:line-through}
+  .unit-price{font-size:11.5px;color:var(--ink-soft);font-weight:600;letter-spacing:.01em}
+  .row .unit-price{display:block;text-align:right;font-weight:600;margin-top:1px}
+  .card .title{font-size:13px;line-height:1.3;color:var(--ink);flex:1}
+  .card .foot{display:flex;align-items:center;justify-content:space-between;margin-top:2px}
+  .store-chip{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:var(--ink-soft)}
+  .store-chip .dot{width:8px;height:8px;border-radius:50%;background:var(--saffron)}
+  .rating{font-size:11.5px;color:var(--ink-soft);font-weight:600}
+  .rating b{color:var(--ink)}
+
+  .empty{padding:40px;text-align:center;color:var(--ink-soft);grid-column:1/-1}
+
+  footer{margin-top:48px;border-top:1px solid var(--line);padding:24px 0 60px}
+  footer .note{font-size:12.5px;color:var(--ink-soft);max-width:70ch}
+  footer .note b{color:var(--ink)}
+
+  @media (max-width:640px){
+    .topbar{flex-wrap:wrap;gap:10px}
+    .search{order:3;flex-basis:100%}
+    .brand .tag{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header class="top">
+  <div class="topbar">
+    <a class="brand" href="#" aria-label="sakkizoyoq">
+      <svg class="mark" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <path fill="currentColor" d="M24 5c-7.7 0-14 5.9-14 13.2 0 3.4 1.4 6 1.4 8.4 0 2.2-1.3 3.2-2.9 4.2-1.9 1.2-3.5 2.4-3.5 4.5 0 2.3 1.9 3.8 4.1 3.8 2.6 0 4.2-2 4.2-4.2 0-1 .8-1.8 1.8-1.8s1.8.8 1.8 1.8c0 2.9 2.2 4.9 4.9 4.9h.4c2.7 0 4.9-2 4.9-4.9 0-1 .8-1.8 1.8-1.8s1.8.8 1.8 1.8c0 2.2 1.6 4.2 4.2 4.2 2.2 0 4.1-1.5 4.1-3.8 0-2.1-1.6-3.3-3.5-4.5-1.6-1-2.9-2-2.9-4.2 0-2.4 1.4-5 1.4-8.4C38 10.9 31.7 5 24 5Z"/>
+        <circle cx="19" cy="19" r="2.6" fill="var(--surface)"/>
+        <circle cx="29" cy="19" r="2.6" fill="var(--surface)"/>
+      </svg>
+      <div>
+        <div class="name">sakkizoyoq</div>
+      </div>
+      <span class="tag">черновик</span>
+    </a>
+
+    <label class="search">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <input id="q" type="search" placeholder="Найти продукт — например, «масло» или «уксус»…" autocomplete="off">
+    </label>
+
+    <span class="city"><svg viewBox="0 0 24 24" fill="none"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="2.4" stroke="currentColor" stroke-width="2"/></svg>Ташкент</span>
+
+    <button class="themebtn" id="theme" aria-label="Сменить тему">
+      <svg id="ic-sun" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <h1>Где продукты <em>дешевле</em> в Ташкенте</h1>
+    <p class="lede">Один поиск — и видно, в каком магазине товар стоит меньше. Сравниваем Uzum&nbsp;Market, Korzinka, Makro и магазины Яндекс&nbsp;Еды — цены в самом магазине и с доставкой часто отличаются.</p>
+    <div class="stats" id="stats"></div>
+    <div class="stat-detail" id="statDetail" hidden></div>
+  </section>
+
+  <section class="sec" id="cmp-sec">
+    <div class="sec-head">
+      <h2>Где дешевле</h2>
+      <span class="hint" id="cmpcount">один товар — цены в разных магазинах</span>
+    </div>
+    <p class="tap-hint">Нажмите на строку магазина — откроется этот товар у него на сайте</p>
+    <div class="cmp-grid" id="cmp"></div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head">
+      <h2>Товары в базе</h2>
+      <span class="hint" id="catcount"></span>
+    </div>
+    <div class="filters" id="filters"></div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <footer>
+    <p class="note"><b>Это демо на реальных ценах</b> из Uzum Market, Korzinka, Makro и доставки Makro в Яндекс Еде (город Ташкент). Пары в блоке «Где дешевле» находит программа: она сверяет бренд, объём и упаковку, чтобы не сравнить литровую бутылку с упаковкой из шести. Спорные пары отбрасываются — лучше показать меньше, чем ошибиться. «sakkizoyoq» (осьминог) — рабочее название, потом поменяем.</p>
+  </footer>
+</main>
+
+<script>
+const DATA = __DATA__;
+
+const fmt = n => (n==null?'—':String(n).replace(/\B(?=(\d{3})+(?!\d))/g,' '));
+const CUR = 'сум';
+const MONTHS = ['января','февраля','марта','апреля','мая','июня','июля',
+                'августа','сентября','октября','ноября','декабря'];
+function plural(n, one, few, many){
+  const a = Math.abs(n) % 100, b = a % 10;
+  if (a > 10 && a < 20) return many;
+  if (b > 1 && b < 5) return few;
+  if (b === 1) return one;
+  return many;
+}
+function fmtDate(iso){
+  const d = new Date(iso);
+  return isNaN(d.getTime()) ? iso : `${d.getDate()} ${MONTHS[d.getMonth()]}`;
+}
+const storeColor = s => /яндекс/i.test(s) ? '#f5b301'
+  : /uzum/i.test(s) ? '#7b3ff2'
+  : /korzinka/i.test(s) ? '#e11d48'
+  : /makro/i.test(s) ? '#16a34a'
+  : '#E79A2B';
+
+const STORE_ROLE = {
+  'Uzum Market':'Полный ассортимент · интернет-магазин',
+  'Korzinka':'Акции недели · супермаркеты',
+  'Makro':'Акции недели · со своего сайта',
+  'Makro (Яндекс)':'Полный каталог доставки · Яндекс Еда',
+};
+const CHEVRON = '<svg class="chev" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m9 6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+function storeStats(){
+  // count how many products each store contributes
+  const catByStore = {};
+  DATA.catalog.forEach(p=>{ catByStore[p.store] = (catByStore[p.store]||0)+1; });
+  const cmpByStore = {};
+  DATA.comparisons.forEach(c=>c.stores.forEach(s=>{ cmpByStore[s.store] = (cmpByStore[s.store]||0)+1; }));
+  const names = Array.from(new Set([...Object.keys(catByStore), ...Object.keys(cmpByStore),
+    ...DATA.comparisons.flatMap(c=>c.stores.map(s=>s.store))]));
+  return names.map(n=>({name:n, catalog:catByStore[n]||0, cmp:cmpByStore[n]||0}));
+}
+
+function renderStats(){
+  const el = document.getElementById('stats');
+  const stores = storeStats();
+  const total = DATA.catalog.length + DATA.comparisons.length;
+  const items = [
+    {key:'stores', b:String(stores.length),
+     s:plural(stores.length,'магазин сравниваем','магазина сравниваем','магазинов сравниваем')},
+    {key:'products', b:String(total),
+     s:plural(total,'товар в демо','товара в демо','товаров в демо')},
+    {b:'Ташкент', s:'цены для города'},
+    {b:fmtDate(DATA.collectedAt) || '—', s:'дата сбора цен'},
+  ];
+  el.innerHTML = items.map(i=> i.key
+    ? `<button type="button" class="stat" data-key="${i.key}" aria-expanded="false" aria-controls="statDetail"><b class="num">${i.b}</b><span>${i.s}</span>${CHEVRON}</button>`
+    : `<div class="stat"><b class="num">${i.b}</b><span>${i.s}</span></div>`
+  ).join('');
+  el.querySelectorAll('button.stat').forEach(btn=>btn.addEventListener('click',()=>toggleDetail(btn)));
+}
+
+function detailHTML(key){
+  const stores = storeStats();
+  if(key==='stores'){
+    const rows = stores.map(s=>{
+      const bits = [];
+      if(s.catalog) bits.push(`${s.catalog} товаров в каталоге`);
+      if(s.cmp) bits.push(`${s.cmp} в сравнениях`);
+      return `<div class="sd-row">
+        <span class="dot" style="background:${storeColor(s.name)}"></span>
+        <span><span class="sd-name">${s.name}</span><br><span class="sd-desc">${STORE_ROLE[s.name]||''}</span></span>
+        <span class="sd-count">${bits.join(' · ')}</span>
+      </div>`;
+    }).join('');
+    return `<p class="sd-title">Какие магазины мы сравниваем</p>${rows}
+      <p class="sd-note">«(Яндекс)» — это каталог доставки того же магазина в Яндекс&nbsp;Еде. Цена в самом магазине и в доставке часто разная, поэтому показываем обе.</p>`;
+  }
+  // products — catalog counts per store
+  const catRows = stores.filter(s=>s.catalog>0).map(s=>`
+    <div class="sd-row"><span class="dot" style="background:${storeColor(s.name)}"></span>
+      <span><span class="sd-name">Каталог ${s.name}</span><br><span class="sd-desc">реальные цены${/uzum/i.test(s.name)?', полный ассортимент':', акции недели'}</span></span>
+      <span class="sd-count">${s.catalog}</span></div>`).join('');
+  return `<p class="sd-title">Что сейчас в базе демо</p>${catRows}
+    <div class="sd-row"><span class="dot" style="background:var(--save)"></span>
+      <span><span class="sd-name">Сравнения цен</span><br><span class="sd-desc">один товар — цены в 2 магазинах</span></span>
+      <span class="sd-count">${DATA.comparisons.length}</span></div>
+    <p class="sd-note">Сайты Korzinka и Makro показывают только акции недели (~300 товаров у каждого) — полный ассортимент Korzinka возьмём позже из приложения. У доставки Makro и у Uzum забираем каталог целиком, это тысячи товаров.</p>`;
+}
+
+function toggleDetail(btn){
+  const panel = document.getElementById('statDetail');
+  const key = btn.getAttribute('data-key');
+  const isOpen = btn.getAttribute('aria-expanded')==='true';
+  document.querySelectorAll('button.stat').forEach(b=>b.setAttribute('aria-expanded','false'));
+  if(isOpen){ panel.hidden = true; return; }
+  btn.setAttribute('aria-expanded','true');
+  panel.innerHTML = detailHTML(key);
+  panel.hidden = false;
+}
+
+function renderComparisons(list){
+  const el = document.getElementById('cmp');
+  const hint = document.getElementById('cmpcount');
+  if(!list.length){ document.getElementById('cmp-sec').style.display='none'; return; }
+  document.getElementById('cmp-sec').style.display='';
+  if(hint) hint.textContent = `${list.length} ${plural(list.length,'товар нашёлся','товара нашлись','товаров нашлись')} сразу в нескольких магазинах`;
+  el.innerHTML = list.map(c=>{
+    const stores = c.stores.slice().sort((a,b)=>a.price-b.price);
+    const best = stores[0].price, worst = stores[stores.length-1].price;
+    const save = worst - best, savePct = worst? Math.round(save*100/worst):0;
+    const rows = stores.map((s,i)=>{
+      const inner = `
+        <span class="store"><span class="dot" style="background:${storeColor(s.store)}"></span>${s.store}</span>
+        <span class="right">
+          <span class="prices">
+            <span class="price num">${fmt(s.price)}<span class="cur">${CUR}</span>${i===0?'<span class="badge">дешевле</span>':''}</span>
+            ${s.unit_price?`<span class="unit-price num">${fmt(s.unit_price)} ${s.unit_label}</span>`:''}
+          </span>${s.url?'<span class="go" aria-hidden="true">→</span>':''}
+        </span>`;
+      if(!s.url) return `<div class="row ${i===0?'best':''}">${inner}</div>`;
+      return `<a class="row ${i===0?'best':''}" href="${s.url}" target="_blank" rel="noopener noreferrer"
+                 title="Открыть в «${s.store}»">${inner}</a>`;
+    }).join('');
+    return `<article class="cmp">
+      ${stores.length>=3?`<span class="cmp-tag">${stores.length} ${plural(stores.length,'магазин','магазина','магазинов')}</span>`:''}
+      <div class="cmp-top">
+        ${c.image?`<img src="${c.image}" alt="" loading="lazy">`:''}
+        <div class="meta">
+          <p class="pname">${c.name}</p>
+          <span class="punit">${c.unit||''}</span>
+          ${save>0?`<div class="cmp-save">Экономия ${fmt(save)} ${CUR} · −${savePct}%</div>`:''}
+        </div>
+      </div>
+      ${c.promo_end?`<div class="promo-end">Акция до ${fmtDate(c.promo_end)}</div>`:''}
+      <div class="cmp-rows">${rows}</div>
+    </article>`;
+  }).join('');
+}
+
+function renderCatalog(list){
+  const el = document.getElementById('grid');
+  document.getElementById('catcount').textContent = `${list.length} товаров`;
+  if(!list.length){ el.innerHTML = '<div class="empty">Ничего не найдено. Попробуйте другое слово.</div>'; return; }
+  el.innerHTML = list.map(p=>`
+    <a class="card" href="${p.url||'#'}" target="_blank" rel="noopener">
+      <div class="imgwrap">
+        ${p.discount?`<span class="disc">−${p.discount}%</span>`:''}
+        <img src="${p.image}" alt="" loading="lazy">
+      </div>
+      <div class="body">
+        <div class="price-line">
+          <span class="price-now num">${fmt(p.price)}<span class="cur">${CUR}</span></span>
+          ${p.old_price?`<span class="price-old num">${fmt(p.old_price)}</span>`:''}
+        </div>
+        ${p.unit_price?`<span class="unit-price num">${fmt(p.unit_price)} ${p.unit_label}</span>`:''}
+        <div class="title">${p.title}</div>
+        <div class="foot">
+          <span class="store-chip"><span class="dot" style="background:${storeColor(p.store)}"></span>${p.store}</span>
+          ${p.promo_end?`<span class="rating">до ${fmtDate(p.promo_end)}</span>`
+            :(p.rating?`<span class="rating">★ <b>${p.rating}</b></span>`:'')}
+        </div>
+      </div>
+    </a>`).join('');
+}
+
+let activeStore = 'all';
+
+function renderFilters(){
+  const el = document.getElementById('filters');
+  const stats = storeStats().filter(s=>s.catalog>0);
+  const chips = [{key:'all', label:'Все магазины', count:DATA.catalog.length}]
+    .concat(stats.map(s=>({key:s.name, label:s.name, count:s.catalog})));
+  el.innerHTML = chips.map(c=>`
+    <button type="button" class="chip" data-store="${c.key}" aria-pressed="${c.key===activeStore}">
+      ${c.key!=='all'?`<span class="dot" style="background:${storeColor(c.key)}"></span>`:''}
+      ${c.label}<span class="cnt num">${c.count}</span>
+    </button>`).join('');
+  el.querySelectorAll('.chip').forEach(b=>b.addEventListener('click',()=>{
+    activeStore = b.dataset.store; renderFilters();
+    applySearch(document.getElementById('q').value);
+  }));
+}
+
+function applySearch(q){
+  q = (q||'').trim().toLowerCase();
+  let cat = activeStore==='all' ? DATA.catalog : DATA.catalog.filter(p=>p.store===activeStore);
+  if(q) cat = cat.filter(p=>(p.title||'').toLowerCase().includes(q));
+  const cmp = q? DATA.comparisons.filter(c=>(c.name||'').toLowerCase().includes(q)
+      || c.stores.some(s=>(s.title||'').toLowerCase().includes(q))) : DATA.comparisons;
+  renderComparisons(cmp);
+  renderCatalog(cat);
+}
+
+// theme toggle
+const root = document.documentElement;
+function setTheme(t){ root.setAttribute('data-theme',t); }
+document.getElementById('theme').addEventListener('click',()=>{
+  const cur = root.getAttribute('data-theme')
+    || (matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');
+  setTheme(cur==='dark'?'light':'dark');
+});
+
+document.getElementById('q').addEventListener('input', e=>applySearch(e.target.value));
+
+renderStats();
+renderFilters();
+applySearch('');
+</script>

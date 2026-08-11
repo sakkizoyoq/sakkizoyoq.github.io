@@ -1,0 +1,246 @@
+<title>Что мы умеем сравнивать — sakkizoyoq</title>
+<style>
+  :root{
+    --bg:#F4F6F5; --surface:#FFFFFF; --surface-2:#EDF1EF;
+    --ink:#14201F; --ink-soft:#5C6C69; --line:#E2E8E5;
+    --brand:#EE5B3A; --save:#0E8F66; --save-bg:#E1F4EB; --save-line:#B9E4D1;
+    --saffron:#E79A2B;
+    --shadow:0 1px 2px rgba(20,32,31,.05), 0 8px 24px rgba(20,32,31,.06);
+    --font:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --maxw:940px;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0E1615; --surface:#16211F; --surface-2:#1D2A28;
+      --ink:#EAF1EF; --ink-soft:#97A8A4; --line:#26332F;
+      --brand:#FF6A48; --save:#37C98D; --save-bg:#123329; --save-line:#1E4E3E;
+      --saffron:#EAA945;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0E1615; --surface:#16211F; --surface-2:#1D2A28;
+    --ink:#EAF1EF; --ink-soft:#97A8A4; --line:#26332F;
+    --brand:#FF6A48; --save:#37C98D; --save-bg:#123329; --save-line:#1E4E3E;
+    --saffron:#EAA945;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+  }
+  :root[data-theme="light"]{
+    --bg:#F4F6F5; --surface:#FFFFFF; --surface-2:#EDF1EF;
+    --ink:#14201F; --ink-soft:#5C6C69; --line:#E2E8E5;
+    --brand:#EE5B3A; --save:#0E8F66; --save-bg:#E1F4EB; --save-line:#B9E4D1;
+    --saffron:#E79A2B;
+    --shadow:0 1px 2px rgba(20,32,31,.05), 0 8px 24px rgba(20,32,31,.06);
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);
+    -webkit-font-smoothing:antialiased;line-height:1.55}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 20px}
+  .num{font-variant-numeric:tabular-nums}
+  a{color:inherit}
+
+  /* Шапка */
+  .hero{padding:44px 0 26px;border-bottom:1px solid var(--line)}
+  .eyebrow{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--brand);margin:0 0 10px}
+  h1{font-size:clamp(28px,4.6vw,40px);line-height:1.12;letter-spacing:-.03em;margin:0 0 12px;
+    text-wrap:balance;font-weight:800}
+  .lede{font-size:16px;color:var(--ink-soft);max-width:62ch;margin:0}
+
+  /* Объяснение «откуда берётся список» */
+  .explain{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+    margin:26px 0 0}
+  .step{background:var(--surface);border:1px solid var(--line);border-radius:14px;
+    padding:15px 16px;box-shadow:var(--shadow)}
+  .step .n{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;
+    border-radius:50%;background:var(--ink);color:var(--bg);font-size:12px;font-weight:800;
+    margin-bottom:9px}
+  .step h3{margin:0 0 5px;font-size:14.5px;font-weight:700;letter-spacing:-.01em}
+  .step p{margin:0;font-size:13px;color:var(--ink-soft)}
+
+  /* Таблица источников */
+  .tablewrap{overflow-x:auto;margin:26px 0 0}
+  table{border-collapse:collapse;width:100%;min-width:520px;font-size:14px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft);font-weight:700}
+  td.n{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+  tr:last-child td{border-bottom:0}
+  tfoot td{font-weight:800;border-top:2px solid var(--line)}
+
+  /* Цифры */
+  .stats{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));margin:26px 0 0}
+  .stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+  .stat b{display:block;font-size:26px;font-weight:800;letter-spacing:-.02em}
+  .stat span{font-size:12.5px;color:var(--ink-soft)}
+  .stat.accent{background:var(--save-bg);border-color:var(--save-line)}
+  .stat.accent b{color:var(--save)}
+
+  section.sec{padding:34px 0}
+  h2{font-size:22px;font-weight:800;letter-spacing:-.02em;margin:0 0 6px}
+  .sub{font-size:14px;color:var(--ink-soft);margin:0 0 18px;max-width:66ch}
+
+  /* Поиск и навигация по категориям */
+  .toolbar{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 88%,transparent);
+    backdrop-filter:saturate(1.4) blur(10px);padding:12px 0;border-bottom:1px solid var(--line);
+    margin-bottom:20px}
+  .find{display:flex;align-items:center;gap:9px;background:var(--surface);border:1px solid var(--line);
+    border-radius:12px;padding:9px 13px;box-shadow:var(--shadow)}
+  .find input{border:0;outline:0;background:transparent;color:var(--ink);font-size:15px;width:100%;
+    font-family:inherit}
+  .navchips{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}
+  .navchips a{font-size:12.5px;font-weight:600;text-decoration:none;border:1px solid var(--line);
+    background:var(--surface);border-radius:999px;padding:5px 11px;white-space:nowrap}
+  .navchips a:hover{border-color:var(--ink-soft)}
+  .navchips a .c{color:var(--ink-soft);font-weight:600}
+
+  /* Категория и товары */
+  .cat{margin-bottom:26px;scroll-margin-top:120px}
+  .cat h3{font-size:16px;font-weight:800;letter-spacing:-.01em;margin:0 0 3px;
+    display:flex;align-items:baseline;gap:9px}
+  .cat h3 .c{font-size:12.5px;color:var(--ink-soft);font-weight:600}
+  .items{display:flex;flex-direction:column;gap:7px;margin-top:11px}
+  .item{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:11px 13px;
+    display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
+  .item .name{flex:1;min-width:210px;font-size:14px;font-weight:600;letter-spacing:-.01em}
+  .item .unit{display:block;font-size:12px;color:var(--ink-soft);font-weight:500;margin-top:1px}
+  .item .prices{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+  .pill{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;
+    border:1px solid var(--line);border-radius:999px;padding:3px 10px;background:var(--surface-2);
+    text-decoration:none}
+  .pill:hover{border-color:var(--ink-soft)}
+  .pill .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+  .pill .p{font-variant-numeric:tabular-nums;font-weight:800}
+  .pill.best{background:var(--save-bg);border-color:var(--save-line);color:var(--save)}
+  .save{font-size:12px;font-weight:800;color:var(--save);white-space:nowrap;align-self:center}
+  .onenet{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;
+    color:var(--saffron);border:1px solid var(--saffron);border-radius:5px;padding:1px 5px;
+    align-self:center;white-space:nowrap}
+  .empty{color:var(--ink-soft);font-size:14px;padding:26px 0}
+
+  .note{background:var(--surface-2);border:1px solid var(--line);border-radius:14px;
+    padding:16px 18px;font-size:14px;color:var(--ink-soft);margin-top:8px}
+  .note b{color:var(--ink)}
+  footer{padding:30px 0 50px;color:var(--ink-soft);font-size:13px;border-top:1px solid var(--line)}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <div class="hero">
+    <p class="eyebrow">sakkizoyoq · черновик</p>
+    <h1>Что мы сейчас умеем сравнивать</h1>
+    <p class="lede">Сравнение появляется только там, где один и тот же товар нашёлся минимум
+      в двух источниках. Ниже — весь список целиком, с ценами и переходами в магазин.</p>
+
+    <div class="explain">
+      <div class="step"><span class="n">1</span>
+        <h3>Собираем цены</h3>
+        <p>Четыре источника, у каждого свой характер: у одних только акции, у других весь каталог.</p></div>
+      <div class="step"><span class="n">2</span>
+        <h3>Ищем один и тот же товар</h3>
+        <p>Программа сверяет бренд, объём и упаковку. Спорные пары отбрасывает — лучше меньше, чем ошибка.</p></div>
+      <div class="step"><span class="n">3</span>
+        <h3>Остаётся пересечение</h3>
+        <p>Товар попадает в сравнение, только если он есть минимум в двух источниках сразу.</p></div>
+    </div>
+  </div>
+
+  <section class="sec">
+    <h2>Откуда берутся цены</h2>
+    <p class="sub">Главная причина, почему список короткий: сайты Korzinka и Makro показывают
+      только акционные товары недели, а не весь ассортимент. Полный каталог есть пока
+      лишь у доставки Makro.</p>
+    <div class="tablewrap">
+      <table id="srctable">
+        <thead><tr><th>Источник</th><th>Что оттуда берём</th><th style="text-align:right">Товаров</th></tr></thead>
+        <tbody></tbody>
+        <tfoot><tr><td>Всего в базе</td><td></td><td class="n" id="srctotal"></td></tr></tfoot>
+      </table>
+    </div>
+
+    <div class="stats">
+      <div class="stat accent"><b class="num" id="s-cards"></b><span>товаров можно сравнить</span></div>
+      <div class="stat"><b class="num" id="s-cross"></b><span>из них у разных сетей</span></div>
+      <div class="stat"><b class="num" id="s-same"></b><span>магазин Makro против его же доставки</span></div>
+    </div>
+
+    <div class="note">
+      <b>Про пометку «одна сеть».</b> Makro встречается дважды: как магазин и как доставка
+      в Яндекс Еде. Цены там разные, иногда сильно, — сравнивать их полезно, но это
+      не сравнение конкурентов. Такие строки помечены отдельно.
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2>Полный список</h2>
+    <p class="sub">Нажмите на цену, чтобы открыть товар в магазине. Korzinka и Makro открывают
+      каталог акций целиком — своей страницы товара у них на сайте нет.</p>
+
+    <div class="toolbar">
+      <label class="find">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             style="color:var(--ink-soft);flex-shrink:0"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" type="search" placeholder="Найти товар в списке — например, «шампунь»" autocomplete="off">
+      </label>
+      <nav class="navchips" id="nav"></nav>
+    </div>
+
+    <div id="list"></div>
+  </section>
+
+  <footer>
+    Данные собраны 11 августа 2026 года, город Ташкент. Цены и состав акций меняются,
+    список пересобирается вместе с витриной.
+  </footer>
+</div>
+
+<script>
+const DATA = __DATA__;
+const fmt = n => n ? String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') : '—';
+
+(function sources(){
+  const tb = document.querySelector('#srctable tbody');
+  tb.innerHTML = DATA.sources.map(([label, n, kind]) =>
+    `<tr><td><span style="display:inline-flex;align-items:center;gap:8px">
+       <span style="width:8px;height:8px;border-radius:50%;background:${DATA.colors[label]||'#999'}"></span>
+       ${label}</span></td><td style="color:var(--ink-soft)">${kind}</td><td class="n">${fmt(n)}</td></tr>`).join('');
+  document.getElementById('srctotal').textContent = fmt(DATA.totalRows);
+  document.getElementById('s-cards').textContent = DATA.cards;
+  document.getElementById('s-cross').textContent = DATA.cross;
+  document.getElementById('s-same').textContent = DATA.cards - DATA.cross;
+})();
+
+document.getElementById('nav').innerHTML = DATA.groups.map(g =>
+  `<a href="#cat-${encodeURIComponent(g.name)}">${g.name} <span class="c">${g.items.length}</span></a>`).join('');
+
+function render(term){
+  const t = (term||'').trim().toLowerCase();
+  const el = document.getElementById('list');
+  let shown = 0;
+  const html = DATA.groups.map(g => {
+    const items = t ? g.items.filter(i => i.name.toLowerCase().includes(t)) : g.items;
+    if (!items.length) return '';
+    shown += items.length;
+    return `<div class="cat" id="cat-${encodeURIComponent(g.name)}">
+      <h3>${g.name} <span class="c">${items.length}</span></h3>
+      <div class="items">${items.map(i => `
+        <div class="item">
+          <div class="name">${i.name}${i.unit ? `<span class="unit">${i.unit}</span>` : ''}</div>
+          ${!i.cross ? '<span class="onenet">одна сеть</span>' : ''}
+          <div class="prices">${i.stores.map((s, k) => {
+            const body = `<span class="dot" style="background:${DATA.colors[s.store]||'#999'}"></span>${s.store}
+                          <span class="p">${fmt(s.price)}</span>`;
+            return s.url
+              ? `<a class="pill ${k===0?'best':''}" href="${s.url}" target="_blank" rel="noopener noreferrer">${body}</a>`
+              : `<span class="pill ${k===0?'best':''}">${body}</span>`;
+          }).join('')}</div>
+          ${i.save > 0 ? `<span class="save">−${i.save}%</span>` : ''}
+        </div>`).join('')}</div>
+    </div>`;
+  }).join('');
+  el.innerHTML = html || `<div class="empty">Ничего не нашлось. Значит, этого товара пока нет ни в одном сравнении.</div>`;
+}
+
+render('');
+document.getElementById('q').addEventListener('input', e => render(e.target.value));
+</script>
