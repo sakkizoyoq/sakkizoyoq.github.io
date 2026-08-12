@@ -104,6 +104,7 @@
   .cmp{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
     box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column}
   .cmp-top{display:flex;gap:14px;padding:16px 16px 8px}
+  .cmp-badges + .cmp-top{padding-top:8px}
   .cmp-top img{width:76px;height:76px;object-fit:contain;background:#fff;border-radius:12px;
     border:1px solid var(--line);flex-shrink:0;padding:6px}
   .cmp-top .meta{min-width:0}
@@ -111,20 +112,23 @@
   .cmp-top .punit{font-size:12.5px;color:var(--ink-soft)}
   .cmp-save{margin:6px 16px 0;font-size:12.5px;font-weight:700;color:var(--save);
     background:var(--save-bg);border:1px solid var(--save-line);border-radius:8px;padding:5px 9px;display:inline-block}
-  .cmp-tag{position:absolute;top:12px;right:12px;font-size:10.5px;font-weight:800;letter-spacing:.04em;
+  /* Плашка стоит в потоке, отдельной строкой над названием. Раньше она висела
+     поверх карточки и наезжала на длинные названия. */
+  .cmp-badges{display:flex;justify-content:flex-end;padding:12px 16px 0}
+  .cmp-tag{font-size:10.5px;font-weight:800;letter-spacing:.04em;white-space:nowrap;
     text-transform:uppercase;color:var(--brand);background:var(--surface-2);border:1px solid var(--line);
     border-radius:999px;padding:3px 9px}
   .cmp-tag.one-net{color:var(--saffron);border-color:var(--saffron);background:transparent;
     text-transform:none;letter-spacing:0;font-weight:700}
-  .cmp{position:relative}
   .promo-end{margin:8px 16px 0;font-size:11.5px;font-weight:700;color:var(--saffron)}
   .cmp-rows{padding:12px 16px 16px;display:flex;flex-direction:column;gap:7px}
   .row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;
     border-radius:11px;border:1px solid var(--line);background:var(--surface)}
   .row.best{border-color:var(--save-line);background:var(--save-bg)}
-  .row .store{display:flex;align-items:center;gap:8px;font-weight:600;font-size:14px}
+  .row .store{display:flex;align-items:center;gap:8px;font-weight:600;font-size:14px;min-width:0}
   .row .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-  .row .price{font-weight:800;font-size:16px;letter-spacing:-.01em}
+  .row .price{font-weight:800;font-size:16px;letter-spacing:-.01em;white-space:nowrap}
+  .row .right{flex-shrink:0}
   .row .price .cur{font-size:11px;font-weight:600;color:var(--ink-soft);margin-left:3px}
   .row .badge{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#fff;
     background:var(--save);border-radius:5px;padding:2px 6px;margin-left:8px}
@@ -388,10 +392,11 @@ function cardHTML(c){
       return `<a class="row ${i===0?'best':''}" href="${s.url}" target="_blank" rel="noopener noreferrer"
                  title="Открыть в «${s.store}»">${inner}</a>`;
     }).join('');
+    const tag = c.one_network
+      ? `<span class="cmp-tag one-net" title="Один и тот же магазин: цена в зале и цена с доставкой">магазин и доставка</span>`
+      : (stores.length>=3?`<span class="cmp-tag">${stores.length} ${plural(stores.length,'магазин','магазина','магазинов')}</span>`:'');
     return `<article class="cmp">
-      ${c.one_network
-        ? `<span class="cmp-tag one-net" title="Один и тот же магазин: цена в зале и цена с доставкой">магазин и доставка</span>`
-        : (stores.length>=3?`<span class="cmp-tag">${stores.length} ${plural(stores.length,'магазин','магазина','магазинов')}</span>`:'')}
+      ${tag?`<div class="cmp-badges">${tag}</div>`:''}
       <div class="cmp-top">
         ${c.image?`<img src="${c.image}" alt="" loading="lazy">`:''}
         <div class="meta">
