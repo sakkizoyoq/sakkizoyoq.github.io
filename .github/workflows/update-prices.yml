@@ -1,0 +1,99 @@
+# Ежедневное обновление цен.
+#
+# Каждое утро GitHub сам запускает сбор цен, пересобирает страницы и обновляет
+# сайт. От человека не требуется ничего — компьютер может быть выключен.
+#
+# Запустить вручную: вкладка Actions → «Обновление цен» → Run workflow.
+
+name: Обновление цен
+
+on:
+  schedule:
+    # 01:00 UTC = 06:00 по Ташкенту. Магазины к утру уже выставили цены дня.
+    - cron: "0 1 * * *"
+  workflow_dispatch:      # кнопка «запустить вручную»
+
+permissions:
+  contents: write         # нужно, чтобы записать обновлённые страницы обратно
+
+concurrency:
+  group: update-prices
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install -r requirements.txt
+
+      # Картинки товаров не меняются день ото дня — храним между запусками,
+      # иначе каждый раз качаем 400 файлов заново.
+      - name: Достать кэш картинок
+        uses: actions/cache@v4
+        with:
+          path: data/.image_cache.json
+          key: images-${{ github.run_id }}
+          restore-keys: images-
+
+      - name: Собрать цены
+        run: |
+          python -m scrapers.korzinka
+          python -m scrapers.makro
+          python -m scrapers.yandex_eats
+          python -m scrapers.uzum
+
+      - name: Проверить склейщик
+        run: python test_matching.py
+
+      - name: Сопоставить товары
+        run: python build_comparisons.py
+
+      - name: Собрать страницы
+        run: |
+          python build_site.py
+          python build_list_page.py
+
+      # Сколько получилось — видно прямо в отчёте о запуске, не открывая сайт.
+      - name: Отчёт
+        run: |
+          python - <<'PY' >> $GITHUB_STEP_SUMMARY
+          import json, collections
+          cards = json.load(open("data/comparisons.json", encoding="utf-8"))
+          rows = {}
+          for name in ("korzinka", "makro", "uzum", "yandex"):
+              try:
+                  rows[name] = len(json.load(open(f"data/{name}_sample.json", encoding="utf-8")))
+              except Exception:
+                  rows[name] = 0
+          cross = sum(1 for c in cards
+                      if len({s["store"].replace(" (Яндекс)", "") for s in c["stores"]}) >= 2)
+          print("## Обновление цен\n")
+          print(f"- Товаров собрано: **{sum(rows.values())}**")
+          for k, v in rows.items():
+              print(f"  - {k}: {v}")
+          print(f"- Сравнений: **{len(cards)}** (у разных сетей: {cross})")
+          by_cat = collections.Counter(c.get("category") or "Разное" for c in cards)
+          print("\n| Категория | Товаров |\n|---|---|")
+          for cat, n in by_cat.most_common():
+              print(f"| {cat} | {n} |")
+          PY
+
+      - name: Обновить сайт
+        run: |
+          git config user.name "sakkizoyoq bot"
+          git config user.email "316122930+popovaleriya27-lgtm@users.noreply.github.com"
+          git add docs
+          if git diff --cached --quiet; then
+            echo "Цены не изменились — обновлять нечего."
+          else
+            git commit -m "Цены на $(TZ=Asia/Tashkent date +'%d.%m.%Y')"
+            git push
+          fi

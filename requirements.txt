@@ -1,4 +1,6 @@
-# Runtime dependencies. Install with:  pip install -r requirements.txt
-# (The current proof-of-concept scrapers use only the Python standard library,
-#  so nothing here is required yet — these are for the next stage.)
-requests>=2.31
+# Зависимости. Установка:  pip install -r requirements.txt
+#
+# Сборщики цен обходятся стандартной библиотекой Python — ничего ставить
+# не нужно. Pillow требуется только сборке страницы: он уменьшает картинки
+# товаров, иначе страница распухает до десятков мегабайт.
+Pillow>=10.0
