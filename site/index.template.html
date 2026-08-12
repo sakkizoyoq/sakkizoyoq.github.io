@@ -351,6 +351,26 @@ function toggleDetail(btn){
   panel.hidden = false;
 }
 
+function closeDetail(){
+  const panel = document.getElementById('statDetail');
+  if(panel.hidden) return;
+  panel.hidden = true;
+  document.querySelectorAll('button.stat').forEach(b=>b.setAttribute('aria-expanded','false'));
+}
+
+// Закрываем раскрытую плитку по клику мимо неё и по Escape — так ведут себя
+// все привычные выпадающие панели, и человек не ищет, куда нажать второй раз.
+document.addEventListener('click', e=>{
+  if(e.target.closest('#statDetail') || e.target.closest('button.stat')) return;
+  closeDetail();
+});
+document.addEventListener('keydown', e=>{
+  if(e.key !== 'Escape') return;
+  const open = document.querySelector('button.stat[aria-expanded="true"]');
+  closeDetail();
+  if(open) open.focus();
+});
+
 function cardHTML(c){
     const stores = c.stores.slice().sort((a,b)=>a.price-b.price);
     const best = stores[0].price, worst = stores[stores.length-1].price;
