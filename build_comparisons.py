@@ -47,6 +47,10 @@ query S($q: MakeSearchQueryInput!) {
 
 _JUNK = re.compile(r"[^\w\s%.,]|_", re.UNICODE)
 
+# Во сколько раз цены в карточке могут отличаться, прежде чем мы сочтём это
+# ошибкой данных, а не выгодой.
+MAX_PRICE_RATIO = 3.0
+
 
 def build_query(title: str, unit: str | None) -> str:
     text = _JUNK.sub(" ", title or "")
@@ -314,9 +318,13 @@ def make_card(items: list[dict], confidence: float) -> dict:
     # shampun 200ml» из Яндекс Еды человеку читать неудобно.
     readable = [s for s in items if not is_transliterated(s["title"])] or items
     name = clean_title(max(readable, key=lambda s: readability(s["title"]))["title"])
+    # «Магазин и его доставка» — это не сравнение конкурентов. Помечаем честно:
+    # Makro на своём сайте и Makro в Яндекс Еде считаются одной сетью.
+    networks = {s["store"].replace(" (Яндекс)", "") for s in items}
     return {
         "name": name,
         "category": classify(name),
+        "one_network": len(networks) < 2,
         "unit": format_size(size) or next((s.get("unit") for s in items if s.get("unit")), None),
         "size": {"kind": size[0], "value": size[1]} if size else None,
         "brands": sorted(brands),
@@ -401,7 +409,28 @@ def main(pause: float = 0.3, uzum_limit: int = 900) -> None:
         time.sleep(pause)
     print(f"  найдено в Uzum: {added} (ошибок запроса: {errors})")
 
-    cards = [make_card(g["items"], g["confidence"]) for g in groups if len(g["items"]) >= 2]
+    # Карточки, где цены расходятся больше чем в MAX_PRICE_RATIO раз, не
+    # показываем. Разница в разы — это почти всегда ошибка в данных магазина,
+    # а не выгода: у Makro в акциях попадаются упаковки из нескольких штук,
+    # записанные как одна («Пюре Rastishka 85 г — 49 950 сум»). Такие карточки
+    # обещают «−87%», которых на самом деле нет.
+    kept, dropped = [], []
+    for g in groups:
+        if len(g["items"]) < 2:
+            continue
+        prices = [x["price"] for x in g["items"]]
+        (dropped if max(prices) > MAX_PRICE_RATIO * min(prices) else kept).append(g)
+    if dropped:
+        print(f"\nОтложено как подозрительное (цены расходятся больше чем "
+              f"в {MAX_PRICE_RATIO:g} раза): {len(dropped)}")
+        for g in dropped[:5]:
+            pr = ", ".join(f"{x['store']} {x['price']}"
+                           for x in sorted(g["items"], key=lambda x: x["price"]))
+            print(f"   • {g['items'][0]['title'][:46]} — {pr}")
+        save_json("comparisons_suspicious.json",
+                  [make_card(g["items"], g["confidence"]) for g in dropped])
+
+    cards = [make_card(g["items"], g["confidence"]) for g in kept]
     cards.sort(key=lambda c: (-len(c["stores"]), -c["confidence"], -c["savings_percent"]))
     path = save_json("comparisons.json", cards)
 
