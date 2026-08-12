@@ -1,3 +1,13 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<!-- Без этой строки телефон рисует страницу шириной 980 точек и уменьшает
+     её целиком — текст становится нечитаемым. -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Сравнение цен на продукты в магазинах Ташкента: Korzinka, Makro, Uzum Market, Яндекс Еда.">
+<meta name="theme-color" content="#F4F6F5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E1615" media="(prefers-color-scheme: dark)">
 <title>sakkizoyoq — где продукты дешевле в Ташкенте</title>
 <style>
   :root{
@@ -158,6 +168,7 @@
   .row .prices{text-align:right}
   @media (prefers-reduced-motion:reduce){a.row,.row .go{transition:none}a.row:active{transform:none}}
 
+
   /* Store filter chips */
   .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
   .chip{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;
@@ -204,7 +215,58 @@
     .brand .tag{display:none}
   }
   @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+  /* ------------------------------------------------------------------ */
+  /* Телефон. Главное — поиск на всю ширину отдельной строкой: в одну
+     строку с названием и городом он сжимался до полоски.                */
+  /* ------------------------------------------------------------------ */
+  @media (max-width:720px){
+    .wrap{padding:0 14px}
+    .topbar{flex-wrap:wrap;gap:10px;padding:10px 14px}
+    .search{order:3;flex-basis:100%}
+    .city{margin-left:auto}
+    .brand .name{font-size:18px}
+
+    .hero{padding:26px 0 10px}
+    .hero h1{max-width:none}
+    .stats{gap:8px}
+    .stat{flex:1 1 calc(50% - 4px);padding:9px 12px}
+    button.stat{padding-right:30px}
+    .stat b{font-size:17px}
+    .stat-detail{max-width:none}
+
+    .sec{padding:22px 0 6px}
+    .sec-head{flex-direction:column;align-items:flex-start;gap:2px;margin-bottom:12px}
+    .sec-head .hint{font-size:12.5px}
+
+    /* Фильтр категорий — одной строкой с прокруткой пальцем, чтобы не
+       занимать пол-экрана. */
+    .filters{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;
+      margin:0 -14px 16px;padding:2px 14px 8px}
+    .filters::-webkit-scrollbar{display:none}
+    /* Пальцем в кнопку 33 точки не попасть — доводим до 42. */
+    .chip{flex-shrink:0;min-height:42px;padding:8px 16px}
+
+    .cmp-grid{grid-template-columns:1fr;gap:12px}
+    .catgroup{margin-bottom:26px}
+    .cattitle{font-size:17px}
+    .cmp-top img{width:64px;height:64px}
+    .cmp-top .pname{font-size:14.5px}
+    .row{padding:11px 12px}
+    .row .store{font-size:13.5px}
+    .row .price{font-size:15.5px}
+    .cmp-save{font-size:12px}
+  }
+
+  /* Совсем узкие экраны */
+  @media (max-width:380px){
+    .brand .tag{display:none}
+    .city span{display:none}
+    .stat{flex-basis:100%}
+  }
 </style>
+</head>
+<body>
 
 <header class="top">
   <div class="topbar">
@@ -225,7 +287,7 @@
       <input id="q" type="search" placeholder="Найти продукт — например, «масло» или «уксус»…" autocomplete="off">
     </label>
 
-    <span class="city"><svg viewBox="0 0 24 24" fill="none"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="2.4" stroke="currentColor" stroke-width="2"/></svg>Ташкент</span>
+    <span class="city"><svg viewBox="0 0 24 24" fill="none"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="2.4" stroke="currentColor" stroke-width="2"/></svg><span>Ташкент</span></span>
 
     <button class="themebtn" id="theme" aria-label="Сменить тему">
       <svg id="ic-sun" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -484,3 +546,5 @@ document.getElementById('q').addEventListener('input', e=>applySearch(e.target.v
 renderStats();
 applySearch('');
 </script>
+</body>
+</html>

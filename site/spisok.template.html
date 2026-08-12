@@ -1,3 +1,11 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Какие товары сервис умеет сравнивать между магазинами Ташкента и почему список именно такой.">
+<meta name="theme-color" content="#F4F6F5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E1615" media="(prefers-color-scheme: dark)">
 <title>Что мы умеем сравнивать — sakkizoyoq</title>
 <style>
   :root{
@@ -123,7 +131,29 @@
   .note b{color:var(--ink)}
   footer{padding:30px 0 50px;color:var(--ink-soft);font-size:13px;border-top:1px solid var(--line)}
   @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+  /* Телефон */
+  @media (max-width:720px){
+    .wrap{padding:0 14px}
+    .hero{padding:28px 0 20px}
+    .explain{grid-template-columns:1fr;gap:10px}
+    .stats{grid-template-columns:1fr 1fr;gap:10px}
+    .stat b{font-size:22px}
+    section.sec{padding:26px 0}
+    /* Таблица источников шире экрана — прокручивается вбок внутри себя,
+       страница при этом вбок не едет. */
+    .tablewrap{margin-left:-14px;margin-right:-14px;padding:0 14px}
+    /* Товар: название сверху, цены под ним — в строку они не помещаются. */
+    .item{gap:9px}
+    .item .name{min-width:100%;flex-basis:100%}
+    .save{align-self:flex-start}
+    .onenet{align-self:flex-start}
+    .navchips{gap:6px}
+    .cat{scroll-margin-top:150px}
+  }
 </style>
+</head>
+<body>
 
 <div class="wrap">
   <div class="hero">
@@ -245,3 +275,5 @@ function render(term){
 render('');
 document.getElementById('q').addEventListener('input', e => render(e.target.value));
 </script>
+</body>
+</html>
