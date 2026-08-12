@@ -17,6 +17,7 @@ data/*.json
 # Secrets
 .env
 
-# Generated pages (large; пересобираются из шаблона и данных)
+# Рабочие сборки страниц. Готовые копии лежат в docs/ — оттуда их показывает
+# GitHub Pages, поэтому они как раз в репозиторий входят.
 site/index.html
 site/spisok.html

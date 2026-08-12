@@ -17,6 +17,7 @@ import urllib.request
 
 from categories import ORDER, OTHER
 from matching import unit_price
+from publish import publish
 
 CACHE_PATH = "data/.image_cache.json"
 MAX_IMAGE_BYTES = 3_000_000   # больше этого не качаем вовсе
@@ -178,6 +179,8 @@ def main() -> None:
     template = open("site/index.template.html", encoding="utf-8").read()
     data_js = json.dumps(payload, ensure_ascii=False).replace("</", "<\\/")
     open("site/index.html", "w", encoding="utf-8").write(template.replace("__DATA__", data_js))
+
+    publish("site/index.html")
 
     size_mb = os.path.getsize("site/index.html") / 1024 / 1024
     three = sum(1 for c in comparisons if len(c["stores"]) >= 3)

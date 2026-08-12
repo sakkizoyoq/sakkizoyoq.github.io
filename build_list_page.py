@@ -13,6 +13,7 @@ import collections
 import json
 
 from categories import ORDER, OTHER, classify
+from publish import publish
 
 STORE_COLOR = {
     "Korzinka": "#e11d48",
@@ -80,6 +81,7 @@ def main() -> None:
     template = open("site/spisok.template.html", encoding="utf-8").read()
     out = template.replace("__DATA__", json.dumps(payload, ensure_ascii=False))
     open("site/spisok.html", "w", encoding="utf-8").write(out)
+    publish("site/spisok.html")
 
     print(f"Готово: site/spisok.html")
     print(f"  товаров в базе: {total_rows}")
